@@ -5,6 +5,19 @@ aws.config.update({region:'us-east-1'});
 var rekognition = new aws.Rekognition();
 
 module.exports = {
+deleteCollection : function(collectionId){
+    var params = {
+        CollectionId : collectionId
+    };
+
+    rekognition.deleteCollection(params,  function(err, data) {
+   if (err) {
+       console.log(err, err.stack);} // an error occurred
+   else     {
+       console.log(data);}
+    });
+} ,
+
 addNewCollection: function (collectionId) {
     var params = {
         CollectionId: collectionId.toString()
@@ -40,7 +53,7 @@ indexFaces: function (callback, collectionId, bucket, name) {
 
 searchFaceByImage: function(callback, snapName) {
     var params = {
-        CollectionId: collectionId.toString(), 
+        CollectionId: 'facesTiraNg', 
         FaceMatchThreshold: 0, 
         Image: {
             S3Object: {
@@ -57,4 +70,3 @@ searchFaceByImage: function(callback, snapName) {
     })}       
 };
 
-module.exports.addNewCollection("facesTiraNg");

@@ -1,10 +1,13 @@
+var aws = require('aws-sdk');
 var compare = require('./compareFaces');
 var s3 = require('./aws-s3');
 var facesCollection = "facesTiraNg";
+var awsS3 = new aws.S3();
 var dbNames =  [];
 var facesInHour = [];
 var minCounter = 0;
 
+aws.config.update({region:'us-east-1'});
 var insertFaceIdToDb = function(data, imgName) {
         s3.updateTagForImage(imgName, data.FaceRecords[0].Face.FaceId);    
         console.log("face " + imgName + " was updated to the faces db");
@@ -54,23 +57,47 @@ module.exports = {
         compare.searchFaceByImage(function(data) {
             var facesInMinute = [];
             
-            for (var face in data.FaceMatches)
+            for (var faceIndex in data.FaceMatches)
             {
-                facesInMinute.push(face.Face.FaceID);
+                facesInMinute.push(data.FaceMatches[faceIndex].Face.FaceId);
             }
 
             facesInHour[minCounter] = facesInMinute;
-            minCounter = (minCounter + 60) % 60;
-            this.compareFacesIds(function (matcheIds){                
-                this.getNamesByIds(function(matcheNames) {               
+            minCounter = (minCounter + 1) % 60;
+            compareFacesIds(function (matcheIds){                
+                getNamesByIds(function(matcheNames) {               
                     
                     console("the name that is mitchapshen is " + matcheNames[0] + "!!!!");
                     console("need to add sms send for each person");
                 }, matcheIds);
             }); 
-        });   
+        }, snapName);   
         
-    }    
+    },
+    insertHistoryToBucket: function() {
+        var params = {
+                Bucket: "faces-ids-history",
+                Key: "FacesInHour",
+                Body: facesInHour                
+            };
+
+        awsS3.putObject(params);
+    },
+    getFacesInHour : function() {
+        var params = {
+            Bucket: "faces-ids-history",
+            Key: "FacesInHour"};
+        awsS3.getObject(function(err, res){
+            if (err) {console.log(err);}
+            else {}
+        });
+    }
 };
 
-module.exports.searchByImg("")
+
+
+//compare.addNewCollection("facesTiraNg");
+module.exports.searchByImg("screenShot.jpg");
+//module.exports.addFaceToCollection("Tali Cohen.jpg");
+
+
