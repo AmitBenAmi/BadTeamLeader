@@ -4,13 +4,14 @@ var s3 = new aws.S3();
 
 module.exports = {
     bucketName: 'ChenKu',
-    isBucketExist: function (existCallback, doesntExistCallback) {
+    screenShotsBucketName: 'screenShots',
+    isBucketExist: function (bucketName, existCallback, doesntExistCallback) {
         s3.listBuckets({}, function (err, data) {
             if (err) throw err;
 
             var isBucketExist = false;
             for (var bucketIndex = 0; bucketIndex < data.Buckets.length; bucketIndex++) {
-                if (data.Buckets[bucketIndex].Name == module.exports.bucketName) {
+                if (data.Buckets[bucketIndex].Name == bucketName) {
                     isBucketExist = true;
                     break;
                 }
@@ -24,10 +25,10 @@ module.exports = {
             }
         });        
     },
-    uploadImageToBucket: function (imageName, extension, imageData) {
+    uploadImageToBucket: function (imageName, extension, imageData, callback) {
         var imageToBucket = function () {
             var params = {
-                Bucket: module.exports.bucketName,
+                Bucket: module.exports.screenShotsBucketName,
                 Key: imageName + '.' + extension,
                 Body: imageData,
                 Tagging: 'name=' + imageName
@@ -39,12 +40,15 @@ module.exports = {
                 }
                 else {
                     console.info('Successfully uploaded an image of ' + imageName + ' to the bucket ' + module.exports.bucketName);
+                    if (callback && typeof(callback) == 'function') {
+                        callback();
+                    }
                 }
             });
         };
 
-        this.isBucketExist(imageToBucket, function () {
-            s3.createBucket({ Bucket: module.exports.bucketName }, imageToBucket);
+        this.isBucketExist(module.exports.screenShotsBucketName, imageToBucket, function () {
+            s3.createBucket({ Bucket: module.exports.screenShotsBucketName }, imageToBucket);
         });
     },
     uploadStaticImagesToBucket: function () {
@@ -70,7 +74,7 @@ module.exports = {
             imageHandler.readImages(specificImageCallback);
         };
 
-        this.isBucketExist(uploadImagesToBucket, function () {
+        this.isBucketExist(module.exports.bucketName, uploadImagesToBucket, function () {
             s3.createBucket({ Bucket: module.exports.bucketName }, uploadImagesToBucket);
         });
     },
