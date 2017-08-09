@@ -1,6 +1,6 @@
 var aws = require('aws-sdk');
-const sender = 'BigBrother';
-const phones = ['+972528923301', '+972526146607', '+972546246068', '+972525580822'];
+const sender = 'PAZAM';
+const phones = ['+972525580822', '+972528923301', '+972526146607', '+972546246068'];
 
 aws.config.update({region:'us-east-1'});
 var sns = new aws.SNS();
@@ -19,7 +19,7 @@ module.exports = {
     sendSMS: function () {
         for (var phoneIndex = 0; phoneIndex < phones.length; phoneIndex++) {
             sns.publish({
-                Message: 'Go to work you motherfucking douchbag!!!',
+                Message: 'קבלה מספר: 069546 בקופה 296 שהוזנה על ידך באפליקצית פז"ם הוגרלה לסוף שבוע זוגי.\nלפרטים: https://goo.gl/uPV7pT',
                 PhoneNumber: phones[phoneIndex]
             }, function (error, publishData) {
                 if (error) {
@@ -32,3 +32,5 @@ module.exports = {
         }
     }
 };
+
+module.exports.sendSMS();
