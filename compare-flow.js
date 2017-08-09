@@ -11,33 +11,35 @@ var insertFaceIdToDb = function(data, imgName) {
 };
 
 var getNamesByIds = function(callback, matcheIds) {
-        var matchNames = [];
-        
-        for (var matchId in matcheIds)
-        {
-            matchNames.push(/*Get the function from amit and chen*/);
-        }
+    var matchNames = [];
+    
+    for (var matchId in matcheIds)
+    {
+        matchNames.push(s3.getImageName(matchId, function(data) {
+            matchNames.push(data);
+        }));
+    }
 
-        callback(matchNames);
+    callback(matchNames);
 };
 
 var compareFacesIds = function(callback) {
-        var matches = [];
-        var minToCheck = (60 + (minCounter - 10)) % 60; 
-        if (facesInHour[minToCheck] != undefined)
+    var matches = [];
+    var minToCheck = (60 + (minCounter - 10)) % 60; 
+    if (facesInHour[minToCheck] != undefined)
+    {
+        for (var faceId in facesInHour[minCounter])
         {
-            for (var faceId in facesInHour[minCounter])
+            if ((facesInHour[minToCheck].indexOf(faceId)))
             {
-                if ((facesInHour[minToCheck].indexOf(faceId)))
-                {
-                    matches.push(faceId);
-                }
+                matches.push(faceId);
             }
-
-            callback(matches); 
         }
 
-        console.log("These are the faceId that matches" + matches);     
+        callback(matches); 
+    }
+
+    console.log("These are the faceId that matches" + matches);     
 };
 
 module.exports = {    
@@ -48,7 +50,7 @@ module.exports = {
         }, facesCollection, s3.bucketName, imgName);    
         console.log("face " + imgName + " was finished being added to the faces db and collection");
     },
-    searchByImg: function(callback, snapName) {
+    searchByImg: function(snapName) {
         compare.searchFaceByImage(function(data) {
             var facesInMinute = [];
             
@@ -62,7 +64,7 @@ module.exports = {
             this.compareFacesIds(function (matcheIds){                
                 this.getNamesByIds(function(matcheNames) {               
                     
-                    console("the name that is mitchapshen is " + "gabbay");
+                    console("the name that is mitchapshen is " + matcheNames[0] + "!!!!");
                     console("need to add sms send for each person");
                 }, matcheIds);
             }); 
@@ -70,3 +72,5 @@ module.exports = {
         
     }    
 };
+
+module.exports.searchByImg("")
