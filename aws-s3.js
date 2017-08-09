@@ -4,27 +4,27 @@ var imageHandler = require('./image-handler.js');
 var s3 = new aws.S3();
 var bucketName = 'ChenKu';
 
-imageHandler.readImage(
-    'C:\\Users\\User\\Pictures\\Camera Roll',
-    function (loadedImageData) {
+var uploadImagesToBucket = function () {
 
-        var bucketCreation = function () {
-            var params = {
-                Bucket: bucketName,
-                Key: 'Amit Ben Ami.jpg',
-                Body: loadedImageData
-            };
-
-            s3.putObject(params, function (err, data) {
-                if (err) {
-                    console.error(err);
-                }
-                else {
-                    console.info("Successfully uploaded image Amit Ben Ami.jpg to bucket " + bucketName);
-                }
-
-            });
+    var specificImageCallback = function (name, extension, loadedImageData) {
+        var params = {
+            Bucket: bucketName,
+            Key: name + '.' + extension,
+            Body: loadedImageData,
+            Tagging: 'name=' + name
         };
 
-        s3.createBucket({Bucket: bucketName}, bucketCreation);
-    });
+        s3.putObject(params, function (err, data) {
+            if (err) {
+                console.error(err);
+            }
+            else {
+                console.info('Successfully uploaded an image of ' + name + ' to the bucket ' + bucketName);
+            }
+        });
+    }
+
+    imageHandler.readImages(specificImageCallback);
+};
+
+s3.createBucket({Bucket: bucketName}, uploadImagesToBucket);
