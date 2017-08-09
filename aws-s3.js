@@ -25,10 +25,10 @@ module.exports = {
             }
         });        
     },
-    uploadImageToBucket: function (imageName, extension, imageData) {
+    uploadImageToBucket: function (imageName, extension, imageData, callback) {
         var imageToBucket = function () {
             var params = {
-                Bucket: module.exports.bucketName,
+                Bucket: module.exports.screenShotsBucketName,
                 Key: imageName + '.' + extension,
                 Body: imageData,
                 Tagging: 'name=' + imageName
@@ -40,12 +40,15 @@ module.exports = {
                 }
                 else {
                     console.info('Successfully uploaded an image of ' + imageName + ' to the bucket ' + module.exports.bucketName);
+                    if (callback && typeof(callback) == 'function') {
+                        callback();
+                    }
                 }
             });
         };
 
         this.isBucketExist(module.exports.screenShotsBucketName, imageToBucket, function () {
-            s3.createBucket({ Bucket: module.exports.bucketName }, imageToBucket);
+            s3.createBucket({ Bucket: module.exports.screenShotsBucketName }, imageToBucket);
         });
     },
     uploadStaticImagesToBucket: function () {
