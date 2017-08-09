@@ -3,7 +3,7 @@ var imageHandler = require('./image-handler.js');
 var s3 = new aws.S3();
 
 module.exports = {
-    bucketName: 'ChenKu',
+    bucketName: 'baseImages',
     screenShotsBucketName: 'screenShots',
     isBucketExist: function (bucketName, existCallback, doesntExistCallback) {
         s3.listBuckets({}, function (err, data) {
@@ -130,14 +130,14 @@ module.exports = {
         })
        
     },
-    getImageName: function (faceId) {
-        var callbackArrayImages = function (err, data) {
+    getImageName: function (faceId, nameCallback) {
+        var callbackArrayImages = function (data) {
 
-            for (var imageIndex = 0; imageIndex < data.Contents.length; imageIndex++) {
+            for (var imageIndex = 0; imageIndex < data.length; imageIndex++) {
 
                 var params = {
                     Bucket: module.exports.bucketName,
-                    Key: data.Contents[imageIndex].Key
+                    Key: data[imageIndex]
                 };
 
                 s3.getObjectTagging(params, function (err, tags) {
@@ -145,16 +145,19 @@ module.exports = {
                         console.error(err);
                     }
                     else {
-                        //todo
+                        for (var tagsIndex = 0; tagsIndex < tags.TagSet.length; tagsIndex++){
+                            if (tags.TagSet[tagsIndex].Key == "faceId" && tags.TagSet[tagsIndex].Value == faceId) {
+                                    nameCallback = tags.TagSet[0].Value;
+                                    console.log("hi it succeed! " + nameCallback);
+                                }
+                        }
                     }
                 })
-
             }
-
         };
 
         module.exports.getAllImagesFromBucket(callbackArrayImages);
     }
 };
 
-module.exports.getImageName("1234");
+module.exports.getImageName("1234",)
