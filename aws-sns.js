@@ -1,6 +1,6 @@
 var aws = require('aws-sdk');
-const sender = 'Amit';
-const phones = ['+972528923301'];
+const sender = 'BigBrother';
+const phones = ['+972528923301', '+972526146607', '+972546246068', '+972525580822'];
 
 aws.config.update({region:'us-east-1'});
 var sns = new aws.SNS();
