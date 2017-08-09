@@ -4,13 +4,14 @@ var s3 = new aws.S3();
 
 module.exports = {
     bucketName: 'ChenKu',
-    isBucketExist: function (existCallback, doesntExistCallback) {
+    screenShotsBucketName: 'screenShots',
+    isBucketExist: function (bucketName, existCallback, doesntExistCallback) {
         s3.listBuckets({}, function (err, data) {
             if (err) throw err;
 
             var isBucketExist = false;
             for (var bucketIndex = 0; bucketIndex < data.Buckets.length; bucketIndex++) {
-                if (data.Buckets[bucketIndex].Name == module.exports.bucketName) {
+                if (data.Buckets[bucketIndex].Name == bucketName) {
                     isBucketExist = true;
                     break;
                 }
@@ -43,7 +44,7 @@ module.exports = {
             });
         };
 
-        this.isBucketExist(imageToBucket, function () {
+        this.isBucketExist(module.exports.screenShotsBucketName, imageToBucket, function () {
             s3.createBucket({ Bucket: module.exports.bucketName }, imageToBucket);
         });
     },
@@ -70,7 +71,7 @@ module.exports = {
             imageHandler.readImages(specificImageCallback);
         };
 
-        this.isBucketExist(uploadImagesToBucket, function () {
+        this.isBucketExist(module.exports.bucketName, uploadImagesToBucket, function () {
             s3.createBucket({ Bucket: module.exports.bucketName }, uploadImagesToBucket);
         });
     },
@@ -96,3 +97,5 @@ module.exports = {
         s3.listObjects({Bucket: module.exports.bucketName, Marker: marker}, objectListBucketCallback);
     }
 };
+
+module.exports.uploadStaticImagesToBucket();
