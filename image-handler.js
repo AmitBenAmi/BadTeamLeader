@@ -1,6 +1,6 @@
 var fs = require ('fs'),
     path = require('path');
-const imagesDataBaseUrl = '.Images';
+const imagesDataBaseUrl = './Images';
 const knownImageTypes = ['jpg', 'jpeg', 'png'];
 
 module.exports = {
