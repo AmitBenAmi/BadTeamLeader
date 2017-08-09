@@ -4,9 +4,9 @@ const imagesDataBaseUrl = './Images';
 const knownImageTypes = ['jpg', 'jpeg', 'png'];
 
 module.exports = {
-    readImage: function (imageName, callback) {
+    readImage: function (imageLocation, imageName, callback) {
 
-        fs.readFile(imagesLocation + '/' + imageName, function (err, data) {
+        fs.readFile(imageLocation + '/' + imageName, function (err, data) {
             if (err) throw err;
             if (callback && typeof(callback) == 'function') {
                 callback(data);

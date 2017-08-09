@@ -4,12 +4,54 @@ var s3 = new aws.S3();
 
 module.exports = {
     bucketName: 'ChenKu',
-    uploadtoBucket: function () {
-        var uploadImagesToBucket = function () {
+    isBucketExist: function (existCallback, doesntExistCallback) {
+        s3.listBuckets({}, function (err, data) {
+            if (err) throw err;
 
+            var isBucketExist = false;
+            for (var bucketIndex = 0; bucketIndex < data.Buckets.length; bucketIndex++) {
+                if (data.Buckets[bucketIndex].Name == module.exports.bucketName) {
+                    isBucketExist = true;
+                    break;
+                }
+            }
+
+            if (!isBucketExist) {
+                doesntExistCallback();
+            }
+            else {
+                existCallback();
+            }
+        });        
+    },
+    uploadImageToBucket: function (imageName, extension, imageData) {
+        var imageToBucket = function () {
+            var params = {
+                Bucket: module.exports.bucketName,
+                Key: imageName + '.' + extension,
+                Body: imageData,
+                Tagging: 'name=' + imageName
+            };
+
+            s3.putObject(params, function (err, data) {
+                if (err) {
+                    console.error(err);
+                }
+                else {
+                    console.info('Successfully uploaded an image of ' + imageName + ' to the bucket ' + module.exports.bucketName);
+                }
+            });
+        };
+
+        this.isBucketExist(imageToBucket, function () {
+            s3.createBucket({ Bucket: module.exports.bucketName }, imageToBucket);
+        });
+    },
+    uploadStaticImagesToBucket: function () {
+        var uploadImagesToBucket = function () {
             var specificImageCallback = function (name, extension, loadedImageData) {
                 var params = {
-                    Bucket: bucketName,
+                    Bucket: module.exports.bucketName,
                     Key: name + '.' + extension,
                     Body: loadedImageData,
                     Tagging: 'name=' + name
@@ -20,7 +62,7 @@ module.exports = {
                         console.error(err);
                     }
                     else {
-                        console.info('Successfully uploaded an image of ' + name + ' to the bucket ' + bucketName);
+                        console.info('Successfully uploaded an image of ' + name + ' to the bucket ' + module.exports.bucketName);
                     }
                 });
             }
@@ -28,7 +70,9 @@ module.exports = {
             imageHandler.readImages(specificImageCallback);
         };
 
-        s3.createBucket({ Bucket: bucketName }, uploadImagesToBucket);
+        this.isBucketExist(uploadImagesToBucket, function () {
+            s3.createBucket({ Bucket: module.exports.bucketName }, uploadImagesToBucket);
+        });
     },
     getAllImagesFromBucket: function (callback, marker) {
 
@@ -49,6 +93,6 @@ module.exports = {
             }
         };
 
-        s3.listObjects({Bucket: bucketName, Marker: marker}, objectListBucketCallback);
+        s3.listObjects({Bucket: module.exports.bucketName, Marker: marker}, objectListBucketCallback);
     }
 };
