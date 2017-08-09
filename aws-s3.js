@@ -97,5 +97,3 @@ module.exports = {
         s3.listObjects({Bucket: module.exports.bucketName, Marker: marker}, objectListBucketCallback);
     }
 };
-
-module.exports.uploadStaticImagesToBucket();
