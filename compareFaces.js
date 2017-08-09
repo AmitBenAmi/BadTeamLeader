@@ -1,6 +1,7 @@
 var aws = require('aws-sdk');
 var s3 = require('./aws-s3');
 
+aws.config.update({region:'us-east-1'});
 var rekognition = new aws.Rekognition();
 
 module.exports = {
@@ -55,3 +56,5 @@ searchFaceByImage: function(callback, snapName) {
         else callback(data);           // successful response
     })}       
 };
+
+module.exports.addNewCollection("facesTiraNg");
