@@ -125,5 +125,32 @@ module.exports = {
             }
         })
        
+    },
+    getImageName: function (faceId) {
+        var callbackArrayImages = function (err, data) {
+
+            for (var imageIndex = 0; imageIndex < data.Contents.length; imageIndex++) {
+
+                var params = {
+                    Bucket: module.exports.bucketName,
+                    Key: data.Contents[imageIndex].Key
+                };
+
+                s3.getObjectTagging(params, function (err, tags) {
+                    if (err) {
+                        console.error(err);
+                    }
+                    else {
+                        //todo
+                    }
+                })
+
+            }
+
+        };
+
+        module.exports.getAllImagesFromBucket(callbackArrayImages);
     }
 };
+
+module.exports.getImageName("1234");
