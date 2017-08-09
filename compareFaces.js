@@ -1,12 +1,12 @@
 var aws = require('aws-sdk');
+var s3 = require('./aws-s3');
 
 var rekognition = new aws.rekognition();
-var collectionId = 0;
 var snapshootImgName = "snapshotImg";
 var snapshootBucketName = "snapshotBuck";
 
 
-var addNewCollection = function () {
+var addNewCollection = function (collectionId) {
     var params = {
         CollectionId: collectionId.toString()
     };
@@ -17,35 +17,49 @@ var addNewCollection = function () {
     });       
 };
 
-var indexFaces = function () {
+var indexFaces = function (callback, collectionId, bucket, name) {
     var params = {
         CollectionId: collectionId.toString(), 
         DetectionAttributes: [
     ], 
     Image: {
         S3Object: {
-            Bucket: snapshootBucketName, 
-            Name: snapshootImgName
+            Bucket: bucket, 
+            Name: name
             }
         }   
     };
 
     rekognition.indexFaces(params, function(err, data) {
-    if (err) console.log(err, err.stack); // an error occurred
-    else     console.log(data); 
+        if (err) {
+            console.log(err, err.stack); // an error occurred
+        } else {
+            callback(data); 
+        }
  });
 };
 
-var searchFaces = function (currFaceId) {
+var searchFaceByImage = function(callback, snapName) {
     var params = {
         CollectionId: collectionId.toString(), 
-        FaceId: currFaceId, 
-        FaceMatchThreshold: 90, 
-        MaxFaces: 1
+        FaceMatchThreshold: 0, 
+        Image: {
+            S3Object: {
+                Bucket: s3.screenShotsBucketName, 
+                Name: snapName
+            }
+        }, 
+        MaxFaces: 10
     };
-    
-    rekognition.searchFaces(params, function(err, data) {
+
+    rekognition.searchFacesByImage(params, function(err, data) {
         if (err) console.log(err, err.stack); // an error occurred
-        else     console.log(data);           // successful response
-    });
+        else callback(data);           // successful response
+    })};
+
+module.exports = {
+    searchFaces,
+    indexFaces,
+    addNewCollection,
+    searchFaceByImage       
 };
