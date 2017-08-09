@@ -1,12 +1,10 @@
 var aws = require('aws-sdk');
 var s3 = require('./aws-s3');
 
-var rekognition = new aws.rekognition();
-var snapshootImgName = "snapshotImg";
-var snapshootBucketName = "snapshotBuck";
+var rekognition = new aws.Rekognition();
 
-
-var addNewCollection = function (collectionId) {
+module.exports = {
+addNewCollection: function (collectionId) {
     var params = {
         CollectionId: collectionId.toString()
     };
@@ -15,9 +13,9 @@ var addNewCollection = function (collectionId) {
         if (err) console.log(err, err.stack); // an error occurred
         else     console.log(data);
     });       
-};
+},
 
-var indexFaces = function (callback, collectionId, bucket, name) {
+indexFaces: function (callback, collectionId, bucket, name) {
     var params = {
         CollectionId: collectionId.toString(), 
         DetectionAttributes: [
@@ -36,10 +34,10 @@ var indexFaces = function (callback, collectionId, bucket, name) {
         } else {
             callback(data); 
         }
- });
-};
+    });
+},
 
-var searchFaceByImage = function(callback, snapName) {
+searchFaceByImage: function(callback, snapName) {
     var params = {
         CollectionId: collectionId.toString(), 
         FaceMatchThreshold: 0, 
@@ -55,11 +53,5 @@ var searchFaceByImage = function(callback, snapName) {
     rekognition.searchFacesByImage(params, function(err, data) {
         if (err) console.log(err, err.stack); // an error occurred
         else callback(data);           // successful response
-    })};
-
-module.exports = {
-    searchFaces,
-    indexFaces,
-    addNewCollection,
-    searchFaceByImage       
+    })}       
 };
