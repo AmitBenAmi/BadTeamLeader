@@ -94,5 +94,36 @@ module.exports = {
         };
 
         s3.listObjects({Bucket: module.exports.bucketName, Marker: marker}, objectListBucketCallback);
+    },
+    updateTagForImage : function (imageName, faceId) {
+        
+        var params = {
+            Bucket: module.exports.bucketName,
+            Key: imageName
+        };
+        
+        s3.getObjectTagging(params, function (err, tags) {
+            if (err) {
+                console.error(err);
+            }
+            else {
+                tags.TagSet.push({
+                    Key: "faceId",
+                    Value: faceId.toString()
+                });
+
+                params.Tagging = tags;
+
+                s3.putObjectTagging(params, function (error, data) {
+                    if (error) {
+                        console.error(error);
+                    }
+                    else {
+                        console.info('Successfully updated a tag for faceID ' + faceId + ' to the image ' + imageName);
+                    }
+                });
+            }
+        })
+       
     }
 };
