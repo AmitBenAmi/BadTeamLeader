@@ -2,7 +2,6 @@ var compare = require('./compareFaces');
 var s3 = require('./aws-s3');
 
 module.exports = {
-    collectionId: 1,
     facesCollection: "facesTiraNg",
     dbNames: [],
     facesInHour: [],
@@ -10,9 +9,11 @@ module.exports = {
     addFaceToCollection: function(imgName) {    
         dbNames.push(imgName.substr(0, imgName.length - 5));
         compare.indexFaces(insertFaceIdToDb(data, imgName), facesCollection, s3.bucketName, imgName);    
+        console.log("face " + imgName + " was finished being added to the faces db and collection");
     },
     insertFaceIdToDb: function(data, imgName) {
         s3.updateTagForImage(imgName, data.Face.FaceId);    
+        console.log("face " + imgName + " was updated to the faces db");
     },
     searchByImg: function(callback, snapName) {
         compare.searchFaceByImage(function(data) {
@@ -25,19 +26,22 @@ module.exports = {
 
             facesInHour[minCounter] = facesInMinute;
             minCounter = (minCounter + 60) % 60;
-            this.compareFacesIds(function (matcheIds){
-                this.getNamesByIds(function(matcheNames) {
+            this.compareFacesIds(function (matcheIds){                
+                this.getNamesByIds(function(matcheNames) {               
                     
-                }, matcheIds)
-            }) 
-        })
+                    console("the name that is mitchapshen is " + "gabbay");
+                    console("need to add sms send for each person");
+                }, matcheIds);
+            }); 
+        });   
+        
     },
     getNamesByIds: function(callback, matcheIds) {
         var matchNames = [];
         
         for (var matchId in matcheIds)
         {
-            matchNames.push();
+            matchNames.push(/*Get the function from amit and chen*/);
         }
 
         callback(matchNames);
@@ -56,6 +60,8 @@ module.exports = {
             }
 
             callback(matches); 
-        }     
+        }
+
+        console.log("These are the faceId that matches" + matches);     
     }
 };
