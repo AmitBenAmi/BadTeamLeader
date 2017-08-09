@@ -9,8 +9,9 @@ var minCounter = 0;
 
 aws.config.update({region:'us-east-1'});
 var insertFaceIdToDb = function(data, imgName) {
-        s3.updateTagForImage(imgName, data.FaceRecords[0].Face.FaceId);    
-        console.log("face " + imgName + " was updated to the faces db");
+        s3.updateTagForImage(imgName, data.FaceRecords[0].Face.FaceId, function () {
+            console.log("face " + imgName + " was updated to the faces db");
+        });    
 };
 
 var getNamesByIds = function(callback, matcheIds) {
