@@ -159,5 +159,3 @@ module.exports = {
         module.exports.getAllImagesFromBucket(callbackArrayImages);
     }
 };
-
-module.exports.getImageName("1234",)
