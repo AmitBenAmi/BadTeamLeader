@@ -5,7 +5,7 @@ var sns = require('./aws-sns');
 var facesCollection = "facesTiraNg";
 var awsS3 = new aws.S3();
 var dbNames =  [];
-var facesInHour = [];
+var facesInHour = [60];
 var minCounter = 0;
 
 aws.config.update({region:'us-east-1'});
@@ -34,11 +34,11 @@ var getNamesByIds = function(callback, matcheIds) {
 var compareFacesIds = function(callback) {
     var matches = [];
     var minToCheck = (60 + (minCounter - 10)) % 60; 
-    if (facesInHour[minCounter - 1] != undefined)
+    if (facesInHour[minCounter - 1] != null)
     {
         for (var faceId in facesInHour[minCounter - 1])
         {
-            if ((facesInHour[minCounter - 1].indexOf(facesInHour[minCounter - 1][faceId])) >= 0)
+            if (facesInHour[minToCheck] != null && (facesInHour[minCounter - 1].indexOf(facesInHour[minToCheck][faceId])) >= 0)
             {
                 matches.push(facesInHour[minCounter - 1][faceId]);
             }
@@ -71,16 +71,26 @@ module.exports = {
             }
             
             var historyCallback = function () {
-                facesInHour[minCounter] = facesInMinute;
+                facesInHour.splice(((60 + (minCounter)) % 60), 0, facesInMinute);
                 minCounter = (minCounter + 1) % 60;
                 compareFacesIds(function (matcheIds) {
                     getNamesByIds(function (matcheNames) {
 
                         console.log("the name that is mitchapshen is " + matcheNames[0] + "!!!!");
-                        sns.sendSMS();
-                        module.exports.insertHistoryToBucket();
+                        var names = "";
+
+                        for (var name in matcheNames)
+                        {
+                            names += name + ",";
+                        }
+
+                        names = names.substr(0, names.length - 2);
+
+                        sns.sendSMS(names + "are sitting on the swing for more than 10 minutes =/");
                     }, matcheIds);
                 });
+
+                module.exports.insertHistoryToBucket();
             };
 
             module.exports.getHistoryfromBucket(historyCallback);             
@@ -128,7 +138,7 @@ module.exports = {
         awsS3.getObject(params, function(err, res){
             if (err) {console.log(err);}
             else {
-                facesInHour = res.Body;
+                facesInHour = JSON.parse(res.Body.toString());
                 
                 var params = {
                     Bucket: "faces-ids-history",
@@ -137,7 +147,7 @@ module.exports = {
                     awsS3.getObject(params, function(err, result){
                         if (err) {console.log(err);}
                         else {
-                            minCounter = parseInt(result);
+                            minCounter = parseInt(result.Body.toString());
 
                             if (callback && typeof(callback) == 'function') {
                                 callback();
