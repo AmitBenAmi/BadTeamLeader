@@ -159,9 +159,3 @@ module.exports = {
     }    
 };
 
-//compare.addNewCollection("facesTiraNg");
-module.exports.searchByImg("screenShot.jpg");
-//module.exports.addFaceToCollection("Tali Cohen.jpg");
-//module.exports.insertHistoryToBucket();
-
-
