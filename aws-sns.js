@@ -1,5 +1,5 @@
 var aws = require('aws-sdk');
-const sender = 'Big Brother';
+const sender = 'BigBrother';
 const phones = ['+972525580822', '+972528923301', '+972526146607', '+972546246068'];
 
 aws.config.update({region:'us-east-1'});
@@ -16,10 +16,10 @@ sns.setSMSAttributes({
 });
 
 module.exports = {
-    sendSMS: function () {
+    sendSMS: function (message) {
         for (var phoneIndex = 0; phoneIndex < phones.length; phoneIndex++) {
             sns.publish({
-                Message: 'You better start working!',
+                Message: message,
                 PhoneNumber: phones[phoneIndex]
             }, function (error, publishData) {
                 if (error) {
