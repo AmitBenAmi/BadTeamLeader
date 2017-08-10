@@ -151,8 +151,7 @@ module.exports = {
                     else {
                         for (var tagsIndex = 0; tagsIndex < tags.TagSet.length; tagsIndex++){
                             if (tags.TagSet[tagsIndex].Key == "faceId" && tags.TagSet[tagsIndex].Value == faceId) {
-                                    nameCallback = tags.TagSet[0].Value;
-                                    console.log("hi it succeed! " + nameCallback);
+                                    nameCallback(tags.TagSet[0].Value);
                                 }
                         }
                     }
