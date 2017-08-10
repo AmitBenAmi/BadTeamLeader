@@ -4,7 +4,6 @@ var compareFlow = require('./compare-flow'),
 // Notifying
 var notificationHandler = function (event, context, callback) {
     console.info('Sending a notification to the subscribers');
-    // awsSns.sendSMS();
 };
 
 // When new face is required for learning
