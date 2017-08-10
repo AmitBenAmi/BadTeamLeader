@@ -1,6 +1,7 @@
 var aws = require('aws-sdk');
 var compare = require('./compareFaces');
 var s3 = require('./aws-s3');
+var sns = require('./aws-sns');
 var facesCollection = "facesTiraNg";
 var awsS3 = new aws.S3();
 var dbNames =  [];
@@ -68,19 +69,21 @@ module.exports = {
                     facesInMinute.push(data.FaceMatches[faceIndex].Face.FaceId);
                 }
             }
+            
+            var historyCallback = function () {
+                facesInHour[minCounter] = facesInMinute;
+                minCounter = (minCounter + 1) % 60;
+                compareFacesIds(function (matcheIds) {
+                    getNamesByIds(function (matcheNames) {
 
-            module.exports.getHistoryfromBucket();            
+                        console.log("the name that is mitchapshen is " + matcheNames[0] + "!!!!");
+                        sns.sendSMS();
+                        module.exports.insertHistoryToBucket();
+                    }, matcheIds);
+                });
+            };
 
-            facesInHour[minCounter] = facesInMinute;
-            minCounter = (minCounter + 1) % 60;
-            compareFacesIds(function (matcheIds){                
-                getNamesByIds(function(matcheNames) {               
-                    
-                    console.log("the name that is mitchapshen is " + matcheNames[0] + "!!!!");
-                    console.log("need to add sms send for each person");
-                    module.exports.insertHistoryToBucket();
-                }, matcheIds);
-            }); 
+            module.exports.getHistoryfromBucket(historyCallback);             
         }, snapName);   
         
         
@@ -116,7 +119,7 @@ module.exports = {
                 }
             });
     },
-    getHistoryfromBucket : function() {
+    getHistoryfromBucket : function(callback) {
         var params = {
             Bucket: "faces-ids-history",
             Key: "FacesInHour" 
@@ -126,7 +129,7 @@ module.exports = {
             if (err) {console.log(err);}
             else {
                 facesInHour = res.Body;
-
+                
                 var params = {
                     Bucket: "faces-ids-history",
                     Key: "minCounter"};
@@ -135,6 +138,10 @@ module.exports = {
                         if (err) {console.log(err);}
                         else {
                             minCounter = parseInt(result);
+
+                            if (callback && typeof(callback) == 'function') {
+                                callback();
+                            }
                         }
                     });                        
             }
@@ -145,5 +152,6 @@ module.exports = {
 //compare.addNewCollection("facesTiraNg");
 module.exports.searchByImg("screenShot.jpg");
 //module.exports.addFaceToCollection("Tali Cohen.jpg");
+//module.exports.insertHistoryToBucket();
 
 
