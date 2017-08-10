@@ -1,5 +1,5 @@
 var aws = require('aws-sdk');
-const sender = 'PAZAM';
+const sender = 'Big Brother';
 const phones = ['+972525580822', '+972528923301', '+972526146607', '+972546246068'];
 
 aws.config.update({region:'us-east-1'});
@@ -19,7 +19,7 @@ module.exports = {
     sendSMS: function () {
         for (var phoneIndex = 0; phoneIndex < phones.length; phoneIndex++) {
             sns.publish({
-                Message: 'Something',
+                Message: 'You better start working!',
                 PhoneNumber: phones[phoneIndex]
             }, function (error, publishData) {
                 if (error) {

@@ -11,6 +11,5 @@ exports.learnNewFace = function (event, context, callback) {
 // Comparing between faces
 exports.faceComparer = function (event, context, callback) {
     console.info('Starting the face comparison');
-
     compareFlow.searchByImg();
 };
