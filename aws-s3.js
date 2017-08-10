@@ -99,7 +99,7 @@ module.exports = {
 
         s3.listObjects({Bucket: module.exports.bucketName, Marker: marker}, objectListBucketCallback);
     },
-    updateTagForImage : function (imageName, faceId) {
+    updateTagForImage: function (imageName, faceId, callback) {
         
         var params = {
             Bucket: module.exports.bucketName,
@@ -124,6 +124,10 @@ module.exports = {
                     }
                     else {
                         console.info('Successfully updated a tag for faceID ' + faceId + ' to the image ' + imageName);
+
+                        if (callback && typeof(callback) == 'function') {
+                            callback();
+                        }
                     }
                 });
             }

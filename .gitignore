@@ -1,2 +1,8 @@
 # vscode files
 /.vscode
+
+# Debug script
+/debug.js
+
+# Binaries
+/*.zip

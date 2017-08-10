@@ -37,4 +37,4 @@ var captureImage = function () {
     });
 }
 
-setInterval(captureImage, 30000);
+setInterval(captureImage, 10000);
