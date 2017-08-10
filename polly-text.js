@@ -10,9 +10,9 @@ const Polly = new AWS.Polly({
 })
 
 let params = {
-    'Text': 'Hello',
+    'Text': 'Good morning',
     'OutputFormat': 'pcm',
-    'VoiceId': 'Kimberly'
+    'VoiceId': 'Nicole'
 }
 
 Polly.synthesizeSpeech(params, (err, data) => {
@@ -25,7 +25,7 @@ Polly.synthesizeSpeech(params, (err, data) => {
             var speaker = new Speaker({
                 channels: 1,
                 bitDepth: 16,
-                smapleRate: 16000
+                sampleRate: 16000
             });
             bufferStream.pipe(speaker);
         }
