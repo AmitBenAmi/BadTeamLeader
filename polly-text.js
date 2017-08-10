@@ -1,7 +1,7 @@
 // Load the SDK
 var AWS = require('aws-sdk')
-var Speaker = require('speaker')
 var Stream = require('stream');
+var Speaker = require('speaker')
 
 // Create an Polly client
 const Polly = new AWS.Polly({
@@ -12,8 +12,7 @@ const Polly = new AWS.Polly({
 let params = {
     'Text': 'Hello',
     'OutputFormat': 'pcm',
-    'VoiceId': 'Kimberly',
-    'SampleRate': '16000'
+    'VoiceId': 'Kimberly'
 }
 
 Polly.synthesizeSpeech(params, (err, data) => {
@@ -24,9 +23,9 @@ Polly.synthesizeSpeech(params, (err, data) => {
             var bufferStream = new Stream.PassThrough();
             bufferStream.end(data.AudioStream);
             var speaker = new Speaker({
-                channels: 2,
+                channels: 1,
                 bitDepth: 16,
-                smapleRate: 44100
+                smapleRate: 16000
             });
             bufferStream.pipe(speaker);
         }
