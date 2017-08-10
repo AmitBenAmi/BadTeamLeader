@@ -1,7 +1,7 @@
 // Load the SDK
-const AWS = require('aws-sdk')
-const Fs = require('fs')
-var player = require('play-sound')(opts = {})
+var AWS = require('aws-sdk')
+var Speaker = require('speaker')
+var Stream = require('stream');
 
 // Create an Polly client
 const Polly = new AWS.Polly({
@@ -10,9 +10,10 @@ const Polly = new AWS.Polly({
 })
 
 let params = {
-    'Text': 'Hi amit, are you tired?',
-    'OutputFormat': 'mp3',
-    'VoiceId': 'Kimberly'
+    'Text': 'Hello',
+    'OutputFormat': 'pcm',
+    'VoiceId': 'Kimberly',
+    'SampleRate': '16000'
 }
 
 Polly.synthesizeSpeech(params, (err, data) => {
@@ -20,16 +21,14 @@ Polly.synthesizeSpeech(params, (err, data) => {
         console.log(err.code)
     } else if (data) {
         if (data.AudioStream instanceof Buffer) {
-            Fs.writeFile("./speech.mp3", data.AudioStream, function(err) {
-                if (err) {
-                    return console.log(err)
-                }
-                console.log("The file was saved!")
-            })
+            var bufferStream = new Stream.PassThrough();
+            bufferStream.end(data.AudioStream);
+            var speaker = new Speaker({
+                channels: 2,
+                bitDepth: 16,
+                smapleRate: 44100
+            });
+            bufferStream.pipe(speaker);
         }
-        
-            // player.play('./speech.mp3', function(err){
-            //     if (err) throw err
-            // })
     }
 })
