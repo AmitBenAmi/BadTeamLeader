@@ -11,5 +11,7 @@ exports.learnNewFace = function (event, context, callback) {
 // Comparing between faces
 exports.faceComparer = function (event, context, callback) {
     console.info('Starting the face comparison');
-    compareFlow.searchByImg();
+    var imageName = event.Records[0].s3.object.key.split('+').join(' ');
+    console.info('Image is: ' + imageName);
+    compareFlow.searchByImg(imageName);
 };
