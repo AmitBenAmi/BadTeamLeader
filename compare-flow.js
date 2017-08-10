@@ -5,7 +5,7 @@ var facesCollection = "facesTiraNg";
 var awsS3 = new aws.S3();
 var dbNames =  [];
 var facesInHour = [];
-var minCounter = 0;
+var minCounter;
 
 aws.config.update({region:'us-east-1'});
 var insertFaceIdToDb = function(data, imgName) {
@@ -50,8 +50,8 @@ module.exports = {
         dbNames.push(imgName.substr(0, imgName.length - 5));
         compare.indexFaces(function(data) {
             insertFaceIdToDb(data, imgName);
-        }, facesCollection, s3.bucketName, imgName);    
-        console.log("face " + imgName + " was finished being added to the faces db and collection");
+            console.log("face " + imgName + " was finished being added to the faces db and collection");
+        }, facesCollection, s3.bucketName, imgName);            
     },
     searchByImg: function(snapName) {
         compare.searchFaceByImage(function(data) {
@@ -61,6 +61,8 @@ module.exports = {
             {
                 facesInMinute.push(data.FaceMatches[faceIndex].Face.FaceId);
             }
+
+            module.exports.getHistoryfromBucket();            
 
             facesInHour[minCounter] = facesInMinute;
             minCounter = (minCounter + 1) % 60;
@@ -73,6 +75,7 @@ module.exports = {
             }); 
         }, snapName);   
         
+        module.exports.insertHistoryToBucket();
     },
     insertHistoryToBucket: function() {
         var params = {
@@ -81,17 +84,58 @@ module.exports = {
                 Body: facesInHour                
             };
 
-        awsS3.putObject(params);
+        awsS3.putObject(params, function (err, data) {
+                if (err) {
+                    console.error(err);
+                }
+                else {
+                    console.info('Successfully uploaded an image of ' + imageName + ' to the bucket ' + module.exports.bucketName);
+                    if (callback && typeof(callback) == 'function') {
+                        callback();
+                    }
+                }
+            });
+
+        params = {
+            Bucket: "faces-ids-history",
+            Key: "minCounter",
+            Body: minCounter
+        };
+
+        awsS3.putObject(params, function (err, data) {
+                if (err) {
+                    console.error(err);
+                }
+                else {
+                    console.info('Successfully uploaded an image of ' + imageName + ' to the bucket ' + module.exports.bucketName);
+                    if (callback && typeof(callback) == 'function') {
+                        callback();
+                    }
+                }
+            });
     },
-    getFacesInHour : function() {
+    getHistoryfromBucket : function() {
         var params = {
             Bucket: "faces-ids-history",
             Key: "FacesInHour"};
         awsS3.getObject(function(err, res){
             if (err) {console.log(err);}
-            else {}
-        });
-    }
+            else {
+                facesInHour = res;
+
+                var params = {
+                    Bucket: "faces-ids-history",
+                    Key: "minCounter"};
+
+                    awsS3.getObject(function(err, result){
+                        if (err) {console.log(err);}
+                        else {
+                            minCounter = result;
+                        }
+                    });                        
+            }
+        });       
+    }    
 };
 
 
