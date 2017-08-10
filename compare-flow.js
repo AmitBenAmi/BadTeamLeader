@@ -5,7 +5,7 @@ var facesCollection = "facesTiraNg";
 var awsS3 = new aws.S3();
 var dbNames =  [];
 var facesInHour = [];
-var minCounter;
+var minCounter = 0;
 
 aws.config.update({region:'us-east-1'});
 var insertFaceIdToDb = function(data, imgName) {
@@ -19,24 +19,27 @@ var getNamesByIds = function(callback, matcheIds) {
     
     for (var matchId in matcheIds)
     {
-        matchNames.push(s3.getImageName(matchId, function(data) {
+        s3.getImageName(matcheIds[matchId], function(data) {
             matchNames.push(data);
-        }));
-    }
 
-    callback(matchNames);
+            if (matchNames.length == matcheIds.length)
+            {
+                callback(matchNames);
+            }            
+        });
+    }
 };
 
 var compareFacesIds = function(callback) {
     var matches = [];
     var minToCheck = (60 + (minCounter - 10)) % 60; 
-    if (facesInHour[minToCheck] != undefined)
+    if (facesInHour[minCounter - 1] != undefined)
     {
-        for (var faceId in facesInHour[minCounter])
+        for (var faceId in facesInHour[minCounter - 1])
         {
-            if ((facesInHour[minToCheck].indexOf(faceId)))
+            if ((facesInHour[minCounter - 1].indexOf(facesInHour[minCounter - 1][faceId])) >= 0)
             {
-                matches.push(faceId);
+                matches.push(facesInHour[minCounter - 1][faceId]);
             }
         }
 
@@ -60,7 +63,10 @@ module.exports = {
             
             for (var faceIndex in data.FaceMatches)
             {
-                facesInMinute.push(data.FaceMatches[faceIndex].Face.FaceId);
+                if (data.FaceMatches[faceIndex].Similarity > 90)
+                {
+                    facesInMinute.push(data.FaceMatches[faceIndex].Face.FaceId);
+                }
             }
 
             module.exports.getHistoryfromBucket();            
@@ -70,19 +76,20 @@ module.exports = {
             compareFacesIds(function (matcheIds){                
                 getNamesByIds(function(matcheNames) {               
                     
-                    console("the name that is mitchapshen is " + matcheNames[0] + "!!!!");
-                    console("need to add sms send for each person");
+                    console.log("the name that is mitchapshen is " + matcheNames[0] + "!!!!");
+                    console.log("need to add sms send for each person");
+                    module.exports.insertHistoryToBucket();
                 }, matcheIds);
             }); 
         }, snapName);   
         
-        module.exports.insertHistoryToBucket();
+        
     },
     insertHistoryToBucket: function() {
         var params = {
                 Bucket: "faces-ids-history",
                 Key: "FacesInHour",
-                Body: facesInHour                
+                Body: JSON.stringify(facesInHour)
             };
 
         awsS3.putObject(params, function (err, data) {
@@ -90,17 +97,14 @@ module.exports = {
                     console.error(err);
                 }
                 else {
-                    console.info('Successfully uploaded an image of ' + imageName + ' to the bucket ' + module.exports.bucketName);
-                    if (callback && typeof(callback) == 'function') {
-                        callback();
-                    }
+                    console.info('Successfully uploaded facesInHour');                    
                 }
             });
 
         params = {
             Bucket: "faces-ids-history",
             Key: "minCounter",
-            Body: minCounter
+            Body: minCounter.toString()
         };
 
         awsS3.putObject(params, function (err, data) {
@@ -108,38 +112,35 @@ module.exports = {
                     console.error(err);
                 }
                 else {
-                    console.info('Successfully uploaded an image of ' + imageName + ' to the bucket ' + module.exports.bucketName);
-                    if (callback && typeof(callback) == 'function') {
-                        callback();
-                    }
+                    console.info('Successfully uploaded minCounter');                    
                 }
             });
     },
     getHistoryfromBucket : function() {
         var params = {
             Bucket: "faces-ids-history",
-            Key: "FacesInHour"};
-        awsS3.getObject(function(err, res){
+            Key: "FacesInHour" 
+        };
+
+        awsS3.getObject(params, function(err, res){
             if (err) {console.log(err);}
             else {
-                facesInHour = res;
+                facesInHour = res.Body;
 
                 var params = {
                     Bucket: "faces-ids-history",
                     Key: "minCounter"};
 
-                    awsS3.getObject(function(err, result){
+                    awsS3.getObject(params, function(err, result){
                         if (err) {console.log(err);}
                         else {
-                            minCounter = result;
+                            minCounter = parseInt(result);
                         }
                     });                        
             }
         });       
     }    
 };
-
-
 
 //compare.addNewCollection("facesTiraNg");
 module.exports.searchByImg("screenShot.jpg");
