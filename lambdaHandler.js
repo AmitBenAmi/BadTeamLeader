@@ -1,10 +1,4 @@
-var compareFlow = require('./compare-flow'),
-    awsSns = require('./aws-sns');
-
-// Notifying
-var notificationHandler = function (event, context, callback) {
-    console.info('Sending a notification to the subscribers');
-};
+var compareFlow = require('./compare-flow');
 
 // When new face is required for learning
 exports.learnNewFace = function (event, context, callback) {
@@ -18,5 +12,5 @@ exports.learnNewFace = function (event, context, callback) {
 exports.faceComparer = function (event, context, callback) {
     console.info('Starting the face comparison');
 
-    //compareFlow.searchByImg();
+    compareFlow.searchByImg();
 };

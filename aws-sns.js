@@ -19,7 +19,7 @@ module.exports = {
     sendSMS: function () {
         for (var phoneIndex = 0; phoneIndex < phones.length; phoneIndex++) {
             sns.publish({
-                Message: 'קבלה מספר: 069546 בקופה 296 שהוזנה על ידך באפליקצית פז"ם הוגרלה לסוף שבוע זוגי.\nלפרטים: https://goo.gl/uPV7pT',
+                Message: 'Something',
                 PhoneNumber: phones[phoneIndex]
             }, function (error, publishData) {
                 if (error) {
@@ -32,5 +32,3 @@ module.exports = {
         }
     }
 };
-
-module.exports.sendSMS();

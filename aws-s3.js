@@ -163,5 +163,3 @@ module.exports = {
         module.exports.getAllImagesFromBucket(callbackArrayImages);
     }
 };
-
-module.exports.uploadStaticImagesToBucket();
